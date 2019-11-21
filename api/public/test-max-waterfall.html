@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<title>Maximum waterfall: API Platform X Vulcain</title>
+<script>
+async function fetchJson(url, opts = {}) {
+    const resp = await fetch(url, opts);
+    return resp.json();
+}
+
+(async function() {
+// Load ALL data from the API
+// Simulate more data dependencies than they really exist to increase the waterfall effect
+console.time('download');
+const conferences = await fetchJson('/conferences', { headers: { Preload: "/hydra:member/*/@id/sessions/*/feedback/*" }});
+//const conferences = await fetchRel('/conferences');
+
+// Fetch conferences
+for (const conferenceRel of conferences["hydra:member"]) {
+   const conference = await fetchJson(conferenceRel['@id']);
+
+   // Fetch sessions
+   for (const sessionURL of conference.sessions) {
+       const session = await fetchJson(sessionURL);
+
+       // Fetch feedback
+       for (const feedbackURL of session.feedback) {
+           const feedback = await fetchJson(feedbackURL)
+       }
+   }
+}
+console.timeEnd('download');
+})();
+</script>
+<p>This script is designed to simulate more data dependencies than they really exist to increase the waterfall effect.

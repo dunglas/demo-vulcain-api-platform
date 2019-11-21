@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<title>Minimum waterfall: API Platform X Vulcain</title>
+<script>
+async function fetchJson(url, opts = {}) {
+    const resp = await fetch(url, opts);
+    return resp.json();
+}
+
+(async function() {
+    let i = 0;
+
+    console.time('download');
+    const conferences = await fetchJson('/conferences', { headers: { Preload: '/hydra:member/*/@id/sessions/*/feedback/*' }});
+    //const conferences = await fetchJson('/conferences');
+
+    // Fetch conferences
+    conferences['hydra:member'].forEach(async conferenceRel => {
+        const conference = await fetchJson(conferenceRel['@id']);
+
+        // Fetch sessions
+        conference.sessions.forEach(async sessionURL => {
+            const session = await fetchJson(sessionURL);
+
+            // Fetch feedback
+            session.feedback.forEach(async feedbackURL => {
+                const feedback = await fetchJson(feedbackURL);
+                if (++i === 100) {
+                    console.timeEnd('download')
+                }
+            })
+        })
+    })
+})();
+</script>
+<p>As fast as possible (don't simulate extra data dependencies).

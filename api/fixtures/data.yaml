@@ -1,0 +1,16 @@
+App\Entity\Conference:
+    conference_{1..10}:
+        name: '<catchPhrase()>'
+
+App\Entity\Session:
+    session_{1..100}:
+        conference: '@conference_*'
+        title: '<catchPhrase()>'
+        summary: '<sentences(3, true)>'
+        author: '<name()>'
+
+App\Entity\Feedback:
+    feedback_{1..100}:
+        session: '@session_*'
+        comment: '<sentences(3, true)>'
+        rating: '<numberBetween(0, 5)>'
